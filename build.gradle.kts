@@ -19,8 +19,8 @@ indra {
     publishSnapshotsTo("hyperaSnapshots", "https://repo.hypera.dev/snapshots/")
 
     javaVersions {
-        target(21)
-        testWith(21)
+        target(25)
+        testWith(25)
     }
 
     configurePublications {
@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     // minestom
-    val minestom = "net.minestom:minestom:2025.08.29-1.21.8"
+    val minestom = "net.minestom:minestom:2025.10.31-1.21.10"
     compileOnly(minestom)
     testImplementation(minestom)
 
@@ -53,11 +53,8 @@ dependencies {
     errorprone("com.google.errorprone:error_prone_core:2.41.0")
 
     // testing
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("ch.qos.logback:logback-classic:1.5.18")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
