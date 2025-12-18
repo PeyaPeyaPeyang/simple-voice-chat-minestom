@@ -20,7 +20,8 @@ public record CategoryRemovedPacket(@NotNull String category) implements Packet<
     }
 
     public CategoryRemovedPacket {
-        if (category.length() > 16) throw new IllegalArgumentException("category id is too long, found " + category.length() + " characters, maximum is 16");
+        if (category.length() > 16)
+            throw new IllegalArgumentException("category id is too long, found " + category.length() + " characters, maximum is 16");
     }
 
     @Override

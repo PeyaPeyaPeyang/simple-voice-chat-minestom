@@ -1,8 +1,8 @@
 package dev.lu15.voicechat.network.minecraft.packets.clientbound;
 
 import dev.lu15.voicechat.VoiceChat;
-import dev.lu15.voicechat.network.minecraft.VoiceState;
 import dev.lu15.voicechat.network.minecraft.Packet;
+import dev.lu15.voicechat.network.minecraft.VoiceState;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;

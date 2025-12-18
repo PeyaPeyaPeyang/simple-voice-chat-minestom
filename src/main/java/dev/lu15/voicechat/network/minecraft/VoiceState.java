@@ -1,10 +1,11 @@
 package dev.lu15.voicechat.network.minecraft;
 
-import java.util.UUID;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public record VoiceState(
         boolean disabled,

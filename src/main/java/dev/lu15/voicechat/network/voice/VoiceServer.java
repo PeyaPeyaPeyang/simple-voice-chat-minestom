@@ -3,24 +3,13 @@ package dev.lu15.voicechat.network.voice;
 import dev.lu15.voicechat.SoundSources;
 import dev.lu15.voicechat.Tags;
 import dev.lu15.voicechat.VoiceChat;
-import dev.lu15.voicechat.network.minecraft.Group;
-import dev.lu15.voicechat.network.minecraft.VoiceState;
 import dev.lu15.voicechat.event.PlayerJoinVoiceChatEvent;
 import dev.lu15.voicechat.event.PlayerMicrophoneEvent;
+import dev.lu15.voicechat.network.minecraft.Group;
+import dev.lu15.voicechat.network.minecraft.VoiceState;
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStatesUpdatedPacket;
 import dev.lu15.voicechat.network.voice.encryption.SecretUtilities;
 import dev.lu15.voicechat.network.voice.packets.*;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
@@ -32,6 +21,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public final class VoiceServer {
 
@@ -62,11 +64,13 @@ public final class VoiceServer {
         this.port = port;
         this.distance = distance;
         this.groupManager = groupManager;
-        eventNode.addListener(PlayerDisconnectEvent.class, event -> {
-            Player player = event.getPlayer();
-            if (!player.hasTag(Tags.VOICE_CLIENT)) return;
-            this.connections.remove(player.getTag(Tags.VOICE_CLIENT));
-        });
+        eventNode.addListener(
+                PlayerDisconnectEvent.class, event -> {
+                    Player player = event.getPlayer();
+                    if (!player.hasTag(Tags.VOICE_CLIENT)) return;
+                    this.connections.remove(player.getTag(Tags.VOICE_CLIENT));
+                }
+        );
     }
 
     public void start() {
@@ -236,46 +240,10 @@ public final class VoiceServer {
     private void handle(@NotNull Player player, @NotNull MicrophonePacket packet) {
         PlayerMicrophoneEvent event = new PlayerMicrophoneEvent(player, packet.data(), this.distance);
         VoiceState oldState = player.getTag(Tags.PLAYER_STATE);
-        if(oldState.group() == null) {
-            EventDispatcher.callCancellable(event, () -> {
-                PlayerSoundPacket soundPacket = new PlayerSoundPacket(
-                        player.getUuid(), // the channel is the sender's UUID
-                        player.getUuid(),
-                        event.getAudio(),
-                        packet.sequenceNumber(),
-                        event.getSoundSelector().distance(),
-                        packet.whispering(),
-                        SoundSources.PROXIMITY
-                        );
-
-                event.getSoundSelector().canHear(player).stream().filter(p -> {
-                    if (p.equals(player)) return false;
-                    VoiceState voiceState = p.getTag(Tags.PLAYER_STATE);
-                    if(voiceState != null && voiceState.group() != null && this.groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
-                    return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
-                }).forEach(p -> this.write(p, soundPacket));
-            });
-        } else {
-            Group group = this.groupManager.getGroup(player);
-            switch (group.type()) {
-                case NORMAL, ISOLATED -> {
-                    EventDispatcher.callCancellable(event, () -> {
-                        GroupSoundPacket soundPacket = new GroupSoundPacket(
-                                player.getUuid(), // the channel is the sender's UUID
-                                player.getUuid(),
-                                event.getAudio(),
-                                packet.sequenceNumber(),
-                                SoundSources.GROUP
-                        );
-                        this.groupManager.getPlayers(group).stream().filter(p -> {
-                            if (p.equals(player)) return false;
-                            return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
-                        }).forEach(p -> this.write(p, soundPacket));
-                    });
-                }
-                case OPEN -> {
-                    EventDispatcher.callCancellable(event, () -> {
-                        PlayerSoundPacket soundPacketPlayer = new PlayerSoundPacket(
+        if (oldState.group() == null) {
+            EventDispatcher.callCancellable(
+                    event, () -> {
+                        PlayerSoundPacket soundPacket = new PlayerSoundPacket(
                                 player.getUuid(), // the channel is the sender's UUID
                                 player.getUuid(),
                                 event.getAudio(),
@@ -284,28 +252,72 @@ public final class VoiceServer {
                                 packet.whispering(),
                                 SoundSources.PROXIMITY
                         );
-                        GroupSoundPacket soundPacketGroup = new GroupSoundPacket(
-                                player.getUuid(), // the channel is the sender's UUID
-                                player.getUuid(),
-                                event.getAudio(),
-                                packet.sequenceNumber(),
-                                SoundSources.GROUP
-                        );
 
-                        List<Player> groupPlayers = this.groupManager.getPlayers(group).stream().filter(p -> {
+                        event.getSoundSelector().canHear(player).stream().filter(p -> {
                             if (p.equals(player)) return false;
-                            return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
-                        }).toList();
-                        List<Player> players = event.getSoundSelector().canHear(player).stream().filter(p -> {
-                            if (p.equals(player)) return false;
-                            if(groupPlayers.contains(p)) return false;
                             VoiceState voiceState = p.getTag(Tags.PLAYER_STATE);
-                            if(voiceState!= null && voiceState.group() != null && this.groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
+                            if (voiceState != null && voiceState.group() != null && this.groupManager.getGroup(
+                                    voiceState.group()).type() == Group.Type.ISOLATED) return false;
                             return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
-                        }).toList();
-                        groupPlayers.forEach(p -> this.write(p, soundPacketGroup));
-                        players.forEach(p -> this.write(p, soundPacketPlayer));
-                    });
+                        }).forEach(p -> this.write(p, soundPacket));
+                    }
+            );
+        } else {
+            Group group = this.groupManager.getGroup(player);
+            switch (group.type()) {
+                case NORMAL, ISOLATED -> {
+                    EventDispatcher.callCancellable(
+                            event, () -> {
+                                GroupSoundPacket soundPacket = new GroupSoundPacket(
+                                        player.getUuid(), // the channel is the sender's UUID
+                                        player.getUuid(),
+                                        event.getAudio(),
+                                        packet.sequenceNumber(),
+                                        SoundSources.GROUP
+                                );
+                                this.groupManager.getPlayers(group).stream().filter(p -> {
+                                    if (p.equals(player)) return false;
+                                    return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
+                                }).forEach(p -> this.write(p, soundPacket));
+                            }
+                    );
+                }
+                case OPEN -> {
+                    EventDispatcher.callCancellable(
+                            event, () -> {
+                                PlayerSoundPacket soundPacketPlayer = new PlayerSoundPacket(
+                                        player.getUuid(), // the channel is the sender's UUID
+                                        player.getUuid(),
+                                        event.getAudio(),
+                                        packet.sequenceNumber(),
+                                        event.getSoundSelector().distance(),
+                                        packet.whispering(),
+                                        SoundSources.PROXIMITY
+                                );
+                                GroupSoundPacket soundPacketGroup = new GroupSoundPacket(
+                                        player.getUuid(), // the channel is the sender's UUID
+                                        player.getUuid(),
+                                        event.getAudio(),
+                                        packet.sequenceNumber(),
+                                        SoundSources.GROUP
+                                );
+
+                                List<Player> groupPlayers = this.groupManager.getPlayers(group).stream().filter(p -> {
+                                    if (p.equals(player)) return false;
+                                    return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
+                                }).toList();
+                                List<Player> players = event.getSoundSelector().canHear(player).stream().filter(p -> {
+                                    if (p.equals(player)) return false;
+                                    if (groupPlayers.contains(p)) return false;
+                                    VoiceState voiceState = p.getTag(Tags.PLAYER_STATE);
+                                    if (voiceState != null && voiceState.group() != null && this.groupManager.getGroup(
+                                            voiceState.group()).type() == Group.Type.ISOLATED) return false;
+                                    return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
+                                }).toList();
+                                groupPlayers.forEach(p -> this.write(p, soundPacketGroup));
+                                players.forEach(p -> this.write(p, soundPacketPlayer));
+                            }
+                    );
                 }
             }
         }

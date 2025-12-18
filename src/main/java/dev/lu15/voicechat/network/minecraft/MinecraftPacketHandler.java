@@ -1,26 +1,16 @@
 package dev.lu15.voicechat.network.minecraft;
 
 import dev.lu15.voicechat.VoiceChat;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.CategoryAddedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStateRemovedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.serverbound.CreateGroupPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupCreatedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupChangedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupRemovedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.serverbound.JoinGroupPacket;
-import dev.lu15.voicechat.network.minecraft.packets.serverbound.LeaveGroupPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStateUpdatedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.HandshakeAcknowledgePacket;
-import dev.lu15.voicechat.network.minecraft.packets.serverbound.HandshakePacket;
-import dev.lu15.voicechat.network.minecraft.packets.serverbound.UpdateStatePacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStatesUpdatedPacket;
-import java.util.HashMap;
-import java.util.Map;
+import dev.lu15.voicechat.network.minecraft.packets.clientbound.*;
+import dev.lu15.voicechat.network.minecraft.packets.serverbound.*;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.packet.server.common.PluginMessagePacket;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MinecraftPacketHandler {
 
@@ -48,7 +38,8 @@ public final class MinecraftPacketHandler {
 
     @SuppressWarnings("unchecked")
     public <T extends Packet<T>> void register(@NotNull Key id, @NotNull NetworkBuffer.Type<T> serializer) {
-        if (!id.namespace().equals(VoiceChat.NAMESPACE)) throw new IllegalArgumentException("id with incorrect namespace used");
+        if (!id.namespace().equals(VoiceChat.NAMESPACE))
+            throw new IllegalArgumentException("id with incorrect namespace used");
         this.serializers.put(id, (NetworkBuffer.Type<Packet<?>>) serializer);
     }
 

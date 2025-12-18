@@ -2,17 +2,17 @@ package dev.lu15.voicechat.network.voice.packets;
 
 import dev.lu15.voicechat.network.voice.Flags;
 import dev.lu15.voicechat.network.voice.VoicePacket;
-import java.util.Optional;
-import java.util.UUID;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public record GroupSoundPacket(
         @NotNull UUID channel,
         @NotNull UUID sender,
-        byte @NotNull[] data,
+        byte @NotNull [] data,
         long sequenceNumber,
         @Nullable String category
 ) implements VoicePacket<GroupSoundPacket> {
@@ -29,7 +29,7 @@ public record GroupSoundPacket(
     private GroupSoundPacket(
             @NotNull UUID channel,
             @NotNull UUID sender,
-            byte @NotNull[] data,
+            byte @NotNull [] data,
             long sequenceNumber,
             @NotNull Flags flags
     ) {

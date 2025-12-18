@@ -4,11 +4,12 @@ import dev.lu15.voicechat.Codec;
 import dev.lu15.voicechat.VoiceChat;
 import dev.lu15.voicechat.network.NetworkTypes;
 import dev.lu15.voicechat.network.minecraft.Packet;
-import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public record HandshakeAcknowledgePacket(
         @NotNull UUID secret,

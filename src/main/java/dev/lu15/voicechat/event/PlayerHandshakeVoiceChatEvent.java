@@ -1,10 +1,11 @@
 package dev.lu15.voicechat.event;
 
-import java.util.UUID;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.event.trait.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public final class PlayerHandshakeVoiceChatEvent implements PlayerEvent, CancellableEvent {
 

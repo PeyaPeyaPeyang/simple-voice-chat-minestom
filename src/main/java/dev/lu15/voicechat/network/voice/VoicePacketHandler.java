@@ -2,23 +2,15 @@ package dev.lu15.voicechat.network.voice;
 
 import dev.lu15.voicechat.network.voice.encryption.AES;
 import dev.lu15.voicechat.network.voice.encryption.SecretUtilities;
-import dev.lu15.voicechat.network.voice.packets.AuthenticatePacket;
-import dev.lu15.voicechat.network.voice.packets.AuthenticationAcknowledgedPacket;
-import dev.lu15.voicechat.network.voice.packets.GroupSoundPacket;
-import dev.lu15.voicechat.network.voice.packets.KeepAlivePacket;
-import dev.lu15.voicechat.network.voice.packets.MicrophonePacket;
-import dev.lu15.voicechat.network.voice.packets.PingPacket;
-import dev.lu15.voicechat.network.voice.packets.PlayerSoundPacket;
-import dev.lu15.voicechat.network.voice.packets.PositionedSoundPacket;
-import dev.lu15.voicechat.network.voice.packets.YeaImHerePacket;
-import dev.lu15.voicechat.network.voice.packets.YouHereBroPacket;
-import java.util.UUID;
+import dev.lu15.voicechat.network.voice.packets.*;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.utils.collection.ObjectArray;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 @SuppressWarnings("UnstableApiUsage") // thanks, minestom
 public final class VoicePacketHandler {
@@ -67,7 +59,7 @@ public final class VoicePacketHandler {
         return supplier.read(buffer);
     }
 
-    public <T extends VoicePacket<T>> byte @NotNull[] write(@NotNull Player player, @NotNull T packet) {
+    public <T extends VoicePacket<T>> byte @NotNull [] write(@NotNull Player player, @NotNull T packet) {
         try {
             return this.write0(player, packet);
         } catch (Exception e) {
@@ -77,7 +69,8 @@ public final class VoicePacketHandler {
         }
     }
 
-    private <T extends VoicePacket<T>> byte @NotNull[] write0(@NotNull Player player, @NotNull T packet) throws Exception {
+    private <T extends VoicePacket<T>> byte @NotNull [] write0(@NotNull Player player,
+                                                               @NotNull T packet) throws Exception {
         NetworkBuffer buffer = NetworkBuffer.resizableBuffer();
         buffer.write(NetworkBuffer.BYTE, MAGIC_BYTE);
 

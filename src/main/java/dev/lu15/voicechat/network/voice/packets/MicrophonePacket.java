@@ -6,7 +6,7 @@ import net.minestom.server.network.NetworkBufferTemplate;
 import org.jetbrains.annotations.NotNull;
 
 public record MicrophonePacket(
-        byte @NotNull[] data,
+        byte @NotNull [] data,
         long sequenceNumber,
         boolean whispering
 ) implements VoicePacket<MicrophonePacket> {

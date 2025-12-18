@@ -16,10 +16,10 @@ public final class PlayerMicrophoneEvent implements PlayerInstanceEvent, Cancell
 
     private @NotNull SoundSelector soundSelector;
 
-    private byte @NotNull[] audio;
+    private byte @NotNull [] audio;
     private boolean cancelled;
 
-    public PlayerMicrophoneEvent(@NotNull Player player, byte @NotNull[] audio, int distance) {
+    public PlayerMicrophoneEvent(@NotNull Player player, byte @NotNull [] audio, int distance) {
         this.player = player;
         this.audio = audio;
         this.soundSelector = SoundSelector.distance(distance);
@@ -30,11 +30,11 @@ public final class PlayerMicrophoneEvent implements PlayerInstanceEvent, Cancell
         return this.player;
     }
 
-    public byte @NotNull[] getAudio() {
+    public byte @NotNull [] getAudio() {
         return this.audio;
     }
 
-    public void setAudio(byte @NotNull[] audio) {
+    public void setAudio(byte @NotNull [] audio) {
         this.audio = audio;
     }
 

@@ -1,17 +1,14 @@
 package dev.lu15.voicechat.network.voice;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.net.*;
+
 public final class VoiceSocket {
 
-    private final byte @NotNull[] buffer = new byte[4096];
+    private final byte @NotNull [] buffer = new byte[4096];
 
     private @Nullable DatagramSocket socket;
 
@@ -38,7 +35,7 @@ public final class VoiceSocket {
         return new RawPacket(data, packet.getSocketAddress(), timestamp);
     }
 
-    public void write(byte @NotNull[] data, @NotNull SocketAddress address) throws IOException {
+    public void write(byte @NotNull [] data, @NotNull SocketAddress address) throws IOException {
         if (this.socket == null || this.socket.isClosed()) throw new IllegalStateException("socket not open");
         this.socket.send(new DatagramPacket(data, data.length, address));
     }

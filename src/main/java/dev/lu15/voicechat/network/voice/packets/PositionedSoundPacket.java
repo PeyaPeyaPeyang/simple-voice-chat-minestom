@@ -3,19 +3,19 @@ package dev.lu15.voicechat.network.voice.packets;
 import dev.lu15.voicechat.network.NetworkTypes;
 import dev.lu15.voicechat.network.voice.Flags;
 import dev.lu15.voicechat.network.voice.VoicePacket;
-import java.util.Optional;
-import java.util.UUID;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public record PositionedSoundPacket(
         @NotNull UUID channel,
         @NotNull UUID sender,
         @NotNull Point position,
-        byte @NotNull[] data,
+        byte @NotNull [] data,
         long sequenceNumber,
         float distance,
         @Nullable String category
@@ -36,7 +36,7 @@ public record PositionedSoundPacket(
             @NotNull UUID channel,
             @NotNull UUID sender,
             @NotNull Point position,
-            byte @NotNull[] data,
+            byte @NotNull [] data,
             long sequenceNumber,
             float distance,
             @NotNull Flags flags

@@ -9,6 +9,7 @@ public final class SoundSources {
     public static final @NotNull String SPECTATOR = "spectator";
     public static final @NotNull String PLUGIN = "plugin";
 
-    private SoundSources() {}
+    private SoundSources() {
+    }
 
 }

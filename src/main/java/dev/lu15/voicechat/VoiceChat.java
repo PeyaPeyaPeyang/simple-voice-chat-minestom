@@ -4,9 +4,6 @@ import dev.lu15.voicechat.network.minecraft.Category;
 import dev.lu15.voicechat.network.minecraft.Group;
 import dev.lu15.voicechat.network.minecraft.Packet;
 import dev.lu15.voicechat.network.voice.VoicePacket;
-import java.util.Collection;
-import java.util.UUID;
-
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import net.minestom.server.entity.Player;
@@ -17,44 +14,56 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Collection;
+import java.util.UUID;
+
 public sealed interface VoiceChat permits VoiceChatImpl {
 
     @NotNull String NAMESPACE = "voicechat";
 
     /**
      * Construct a new voice chat server. The server will start after building.
+     *
      * @param address the address to bind to
-     * @param port the port to bind to, this can be the same as the Minecraft server port
+     * @param port    the port to bind to, this can be the same as the Minecraft server port
      * @return a new voice chat server builder
      */
     static @NotNull Builder builder(@NotNull String address, int port) {
         return new VoiceChatImpl.BuilderImpl(address, port);
     }
 
+    static @NotNull Key key(@NotNull @KeyPattern.Value String key) {
+        return Key.key(NAMESPACE, key);
+    }
+
     <T extends Packet<T>> void sendPacket(@NotNull Player player, @NotNull T packet);
 
     <T extends VoicePacket<T>> void sendPacket(@NotNull Player player, @NotNull T packet);
 
-    @NotNull @Unmodifiable Collection<Category> getCategories();
+    @NotNull
+    @Unmodifiable
+    Collection<Category> getCategories();
 
     @NotNull RegistryKey<Category> addCategory(@NotNull Key id, @NotNull Category category);
 
     boolean removeCategory(@NotNull RegistryKey<Category> category);
 
-    static @NotNull Key key(@NotNull @KeyPattern.Value String key) {
-        return Key.key(NAMESPACE, key);
-    }
+    @NotNull
+    @Unmodifiable
+    Collection<Group> getManagedGroups();
 
-    @NotNull @Unmodifiable Collection<Group> getManagedGroups();
+    @Nullable Group createManagedGroup(@NotNull String name, @NotNull Group.Type type, @Nullable String password,
+                                       boolean persistent, boolean hidden);
 
-    @Nullable Group createManagedGroup(@NotNull String name, @NotNull Group.Type type, @Nullable String password, boolean persistent, boolean hidden);
     boolean removeManagedGroup(@NotNull UUID groupId);
+
     boolean setPlayerManagedGroup(@NotNull Player player, @Nullable UUID groupId, @Nullable String passwordForNewGroup);
 
     sealed interface Builder permits VoiceChatImpl.BuilderImpl {
 
         /**
          * Set the event node to use for voice chat events. This must be registered by yourself.
+         *
          * @param eventNode the event node
          * @return this builder
          */
@@ -63,6 +72,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Set the public address of the voice server. This is used to tell clients where to connect to.
          * By default, this is blank and clients will use the address they connected to the Minecraft server with.
+         *
          * @param publicAddress the public address of the voice server
          * @return this builder
          */
@@ -71,6 +81,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Set the mtu of the voice server. This is used to determine the largest size of a packet.
          * By default, this is set to 1024.
+         *
          * @param mtu the public address of the voice server
          * @return this builder
          */
@@ -79,6 +90,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Set the codec of the voice server. This is used by clients to determine which audio codec to use.
          * By default, this is set to VOIP.
+         *
          * @param codec the voice codec to be used by clients
          * @return this builder
          */
@@ -87,6 +99,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Set the voice distance of the server. This is used to determine how far users can hear each other from..
          * By default, this is set to 48.
+         *
          * @param distance the distance players can hear each other from.
          * @return this builder
          */
@@ -95,6 +108,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Enables/Disables the use of groups on the server.
          * By default, this is set to false.
+         *
          * @param enabled used to determine if groups should be enabled.
          * @return this builder
          */
@@ -103,6 +117,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Set the keepalive delay for the server.
          * By default, this is set to 1000.
+         *
          * @param keepalive used to determine what the keepalive delay should be set to.
          * @return this builder
          */
@@ -111,6 +126,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         /**
          * Enables/Disables the use of recording on the server.
          * By default, this is set to false.
+         *
          * @param enabled used to determine if recording should be enabled.
          * @return this builder
          */
@@ -118,6 +134,7 @@ public sealed interface VoiceChat permits VoiceChatImpl {
 
         /**
          * Enable the voice chat server.
+         *
          * @return the voice chat server
          */
         @NotNull VoiceChat enable();

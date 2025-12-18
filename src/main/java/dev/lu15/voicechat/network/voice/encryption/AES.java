@@ -1,29 +1,31 @@
 package dev.lu15.voicechat.network.voice.encryption;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Random;
-import java.util.UUID;
+import net.minestom.server.network.NetworkBuffer;
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import net.minestom.server.network.NetworkBuffer;
-import org.jetbrains.annotations.NotNull;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Random;
+import java.util.UUID;
 
 public final class AES {
-
-    private AES() {}
 
     private static final @NotNull Random RANDOM = new SecureRandom();
     private static final @NotNull String CIPHER = "AES/CBC/PKCS5Padding";
     private static final int UUID_LENGTH = 16;
 
-    public static byte @NotNull[] getBytesFromUuid(@NotNull UUID uuid) {
+    private AES() {
+    }
+
+    public static byte @NotNull [] getBytesFromUuid(@NotNull UUID uuid) {
         NetworkBuffer buffer = NetworkBuffer.staticBuffer(UUID_LENGTH);
         buffer.write(NetworkBuffer.UUID, uuid);
         byte[] bytes = new byte[UUID_LENGTH];
@@ -31,7 +33,7 @@ public final class AES {
         return bytes;
     }
 
-    private static byte @NotNull[] generateIv() {
+    private static byte @NotNull [] generateIv() {
         byte[] iv = new byte[UUID_LENGTH];
         RANDOM.nextBytes(iv);
         return iv;
@@ -41,7 +43,8 @@ public final class AES {
         return new SecretKeySpec(getBytesFromUuid(secret), "AES");
     }
 
-    public static byte @NotNull[] encrypt(@NotNull UUID secret, byte @NotNull[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public static byte @NotNull [] encrypt(@NotNull UUID secret,
+                                           byte @NotNull [] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] iv = generateIv();
         IvParameterSpec spec = new IvParameterSpec(iv);
         Cipher cipher = Cipher.getInstance(CIPHER);
@@ -55,7 +58,8 @@ public final class AES {
         return result;
     }
 
-    public static byte @NotNull[] decrypt(@NotNull UUID secret, byte @NotNull[] result) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public static byte @NotNull [] decrypt(@NotNull UUID secret,
+                                           byte @NotNull [] result) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] iv = new byte[UUID_LENGTH];
         System.arraycopy(result, 0, iv, 0, iv.length);
 
