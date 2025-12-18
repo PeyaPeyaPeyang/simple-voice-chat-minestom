@@ -40,7 +40,7 @@ public final class VoiceSocket {
 
     public void write(byte @NotNull[] data, @NotNull SocketAddress address) throws IOException {
         if (this.socket == null || this.socket.isClosed()) throw new IllegalStateException("socket not open");
-        socket.send(new DatagramPacket(data, data.length, address));
+        this.socket.send(new DatagramPacket(data, data.length, address));
     }
 
     public void close() {

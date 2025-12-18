@@ -234,7 +234,7 @@ public final class VoiceServer {
     }
 
     private void handle(@NotNull Player player, @NotNull MicrophonePacket packet) {
-        PlayerMicrophoneEvent event = new PlayerMicrophoneEvent(player, packet.data(), distance);
+        PlayerMicrophoneEvent event = new PlayerMicrophoneEvent(player, packet.data(), this.distance);
         VoiceState oldState = player.getTag(Tags.PLAYER_STATE);
         if(oldState.group() == null) {
             EventDispatcher.callCancellable(event, () -> {
@@ -251,12 +251,12 @@ public final class VoiceServer {
                 event.getSoundSelector().canHear(player).stream().filter(p -> {
                     if (p.equals(player)) return false;
                     VoiceState voiceState = p.getTag(Tags.PLAYER_STATE);
-                    if(voiceState != null && voiceState.group() != null && groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
+                    if(voiceState != null && voiceState.group() != null && this.groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
                     return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
                 }).forEach(p -> this.write(p, soundPacket));
             });
         } else {
-            Group group = groupManager.getGroup(player);
+            Group group = this.groupManager.getGroup(player);
             switch (group.type()) {
                 case NORMAL, ISOLATED -> {
                     EventDispatcher.callCancellable(event, () -> {
@@ -267,7 +267,7 @@ public final class VoiceServer {
                                 packet.sequenceNumber(),
                                 SoundSources.GROUP
                         );
-                        groupManager.getPlayers(group).stream().filter(p -> {
+                        this.groupManager.getPlayers(group).stream().filter(p -> {
                             if (p.equals(player)) return false;
                             return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
                         }).forEach(p -> this.write(p, soundPacket));
@@ -292,7 +292,7 @@ public final class VoiceServer {
                                 SoundSources.GROUP
                         );
 
-                        List<Player> groupPlayers = groupManager.getPlayers(group).stream().filter(p -> {
+                        List<Player> groupPlayers = this.groupManager.getPlayers(group).stream().filter(p -> {
                             if (p.equals(player)) return false;
                             return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
                         }).toList();
@@ -300,7 +300,7 @@ public final class VoiceServer {
                             if (p.equals(player)) return false;
                             if(groupPlayers.contains(p)) return false;
                             VoiceState voiceState = p.getTag(Tags.PLAYER_STATE);
-                            if(voiceState!= null && voiceState.group() != null && groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
+                            if(voiceState!= null && voiceState.group() != null && this.groupManager.getGroup(voiceState.group()).type() == Group.Type.ISOLATED) return false;
                             return !p.hasTag(Tags.PLAYER_STATE) || !p.getTag(Tags.PLAYER_STATE).disabled();
                         }).toList();
                         groupPlayers.forEach(p -> this.write(p, soundPacketGroup));

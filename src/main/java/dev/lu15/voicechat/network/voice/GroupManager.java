@@ -16,17 +16,17 @@ public class GroupManager {
 
     @Nullable
     public Group getGroup(Player player) {
-        UUID groupId = playerGroups.get(player);
-        return groupId != null ? groups.get(groupId) : null;
+        UUID groupId = this.playerGroups.get(player);
+        return groupId != null ? this.groups.get(groupId) : null;
     }
 
     @Nullable
     public Group getGroup(UUID group) {
-        return groups.get(group);
+        return this.groups.get(group);
     }
 
     public Collection<Group> getGroups() {
-        return Collections.unmodifiableCollection(groups.values());
+        return Collections.unmodifiableCollection(this.groups.values());
     }
 
     @Nullable
@@ -36,31 +36,31 @@ public class GroupManager {
 
     @Nullable
     public List<Player> getPlayers(UUID group) {
-        return groupPlayers.get(group);
+        return this.groupPlayers.get(group);
     }
 
     public boolean hasGroup(UUID group) {
-        return groups.containsKey(group);
+        return this.groups.containsKey(group);
     }
 
     public boolean hasGroup(Group group) {
-        return groups.containsKey(group.id());
+        return this.groups.containsKey(group.id());
     }
 
     @Nullable
     public String getPassword(Group group) {
-        return groupPassword.get(group.id());
+        return this.groupPassword.get(group.id());
     }
 
     @Nullable
     public String getPassword(UUID group) {
-        return groupPassword.get(group);
+        return this.groupPassword.get(group);
     }
 
     public void createGroup(Group group, @Nullable String password) {
-        groupPassword.put(group.id(), password);
-        groups.put(group.id(), group);
-        groupPlayers.putIfAbsent(group.id(), new ArrayList<>());
+        this.groupPassword.put(group.id(), password);
+        this.groups.put(group.id(), group);
+        this.groupPlayers.putIfAbsent(group.id(), new ArrayList<>());
     }
 
     public void setGroup(Player player, Group group) {
@@ -70,17 +70,17 @@ public class GroupManager {
     public void setGroup(Player player, UUID group) {
         leaveGroup(player);
 
-        ArrayList<Player> players = groupPlayers.computeIfAbsent(group, k -> new ArrayList<>());
+        ArrayList<Player> players = this.groupPlayers.computeIfAbsent(group, k -> new ArrayList<>());
         if (!players.contains(player)) {
             players.add(player);
         }
-        playerGroups.put(player, group);
+        this.playerGroups.put(player, group);
     }
 
     public void leaveGroup(Player player) {
-        UUID groupId = playerGroups.remove(player);
+        UUID groupId = this.playerGroups.remove(player);
         if (groupId != null) {
-            ArrayList<Player> playersInGroup = groupPlayers.get(groupId);
+            ArrayList<Player> playersInGroup = this.groupPlayers.get(groupId);
             if (playersInGroup != null) {
                 playersInGroup.remove(player);
             }
@@ -92,21 +92,21 @@ public class GroupManager {
     }
 
     public void removeGroup(UUID groupId) {
-        if (!groups.containsKey(groupId)) {
+        if (!this.groups.containsKey(groupId)) {
             return;
         }
 
-        List<Player> players = groupPlayers.get(groupId);
+        List<Player> players = this.groupPlayers.get(groupId);
         if (players != null) {
             for (Player player : new ArrayList<>(players)) {
-                if (Objects.equals(playerGroups.get(player), groupId)) {
-                    playerGroups.remove(player);
+                if (Objects.equals(this.playerGroups.get(player), groupId)) {
+                    this.playerGroups.remove(player);
                 }
             }
         }
 
-        groupPlayers.remove(groupId);
-        groups.remove(groupId);
-        groupPassword.remove(groupId);
+        this.groupPlayers.remove(groupId);
+        this.groups.remove(groupId);
+        this.groupPassword.remove(groupId);
     }
 }

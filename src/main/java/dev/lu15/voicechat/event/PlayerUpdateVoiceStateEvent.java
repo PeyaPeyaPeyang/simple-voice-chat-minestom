@@ -21,7 +21,7 @@ public final class PlayerUpdateVoiceStateEvent implements PlayerEvent {
     }
 
     public @NotNull VoiceState getState() {
-        return state;
+        return this.state;
     }
 
 }

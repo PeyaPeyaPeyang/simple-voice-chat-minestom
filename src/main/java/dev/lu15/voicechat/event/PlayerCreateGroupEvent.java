@@ -19,11 +19,11 @@ public class PlayerCreateGroupEvent implements PlayerEvent, CancellableEvent {
 
     @Override
     public @NotNull Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     public @NotNull Group getGroup() {
-        return group;
+        return this.group;
     }
 
     @Override

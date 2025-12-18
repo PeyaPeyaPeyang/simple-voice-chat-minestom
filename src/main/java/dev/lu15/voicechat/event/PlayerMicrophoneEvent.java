@@ -31,7 +31,7 @@ public final class PlayerMicrophoneEvent implements PlayerInstanceEvent, Cancell
     }
 
     public byte @NotNull[] getAudio() {
-        return audio;
+        return this.audio;
     }
 
     public void setAudio(byte @NotNull[] audio) {
@@ -39,7 +39,7 @@ public final class PlayerMicrophoneEvent implements PlayerInstanceEvent, Cancell
     }
 
     public @NotNull SoundSelector getSoundSelector() {
-        return soundSelector;
+        return this.soundSelector;
     }
 
     public void setSoundSelector(@NotNull SoundSelector soundSelector) {
