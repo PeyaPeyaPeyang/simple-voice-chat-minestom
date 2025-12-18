@@ -1,7 +1,11 @@
 package dev.lu15.voicechat;
 
+import dev.lu15.voicechat.event.PlayerCreateGroupEvent;
+import dev.lu15.voicechat.event.PlayerJoinGroupEvent;
 import dev.lu15.voicechat.event.PlayerJoinVoiceChatEvent;
+import dev.lu15.voicechat.event.PlayerLeaveGroupEvent;
 import dev.lu15.voicechat.network.minecraft.Category;
+import dev.lu15.voicechat.network.minecraft.Group;
 import dev.lu15.voicechat.network.minecraft.VoiceState;
 import dev.lu15.voicechat.event.PlayerHandshakeVoiceChatEvent;
 import dev.lu15.voicechat.event.PlayerUpdateVoiceStateEvent;
@@ -9,11 +13,19 @@ import dev.lu15.voicechat.network.minecraft.MinecraftPacketHandler;
 import dev.lu15.voicechat.network.minecraft.Packet;
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.CategoryAddedPacket;
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.CategoryRemovedPacket;
-import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStatePacket;
+import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupChangedPacket;
+import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupCreatedPacket;
+import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupRemovedPacket;
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.HandshakeAcknowledgePacket;
+import dev.lu15.voicechat.network.minecraft.packets.clientbound.VoiceStateUpdatedPacket;
+import dev.lu15.voicechat.network.minecraft.packets.serverbound.CreateGroupPacket;
 import dev.lu15.voicechat.network.minecraft.packets.serverbound.HandshakePacket;
+import dev.lu15.voicechat.network.minecraft.packets.serverbound.JoinGroupPacket;
+import dev.lu15.voicechat.network.minecraft.packets.serverbound.LeaveGroupPacket;
 import dev.lu15.voicechat.network.minecraft.packets.serverbound.UpdateStatePacket;
+import dev.lu15.voicechat.network.voice.GroupManager;
 import dev.lu15.voicechat.network.voice.VoicePacket;
+import dev.lu15.voicechat.network.voice.VoiceServer;
 import dev.lu15.voicechat.network.voice.encryption.SecretUtilities;
 
 import java.net.InetAddress;
@@ -360,7 +372,7 @@ final class VoiceChatImpl implements VoiceChat {
                         null
                 );
                 player.setTag(Tags.PLAYER_STATE, newState);
-                PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStatePacket(newState)));
+                PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStateUpdatedPacket(newState)));
                 this.sendPacket(player, new GroupChangedPacket(null, false));
             }
         }
@@ -398,7 +410,7 @@ final class VoiceChatImpl implements VoiceChat {
             groupManager.leaveGroup(player);
             VoiceState updatedState = new VoiceState(false, false, player.getUuid(), player.getUsername(), null);
             player.setTag(Tags.PLAYER_STATE, updatedState);
-            PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStatePacket(updatedState)));
+            PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStateUpdatedPacket(updatedState)));
             this.sendPacket(player, new GroupChangedPacket(null, false));
             checkAndAutoRemoveGroup(oldGroupId);
             if (oldGroupObject != null) {
@@ -439,7 +451,7 @@ final class VoiceChatImpl implements VoiceChat {
         groupManager.setGroup(player, newGroupId);
         VoiceState newState = new VoiceState(false, false, player.getUuid(), player.getUsername(), newGroupId);
         player.setTag(Tags.PLAYER_STATE, newState);
-        PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStatePacket(newState)));
+        PacketSendingUtils.broadcastPlayPacket(this.packetHandler.write(new VoiceStateUpdatedPacket(newState)));
         this.sendPacket(player, new GroupChangedPacket(newGroupId, false));
         LOGGER.info("Player {} joined group '{}' ({}) via managed set.", player.getUsername(), targetGroup.name(), newGroupId);
 
