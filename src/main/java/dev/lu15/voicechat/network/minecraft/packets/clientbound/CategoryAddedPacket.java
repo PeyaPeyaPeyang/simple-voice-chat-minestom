@@ -4,6 +4,7 @@ import dev.lu15.voicechat.VoiceChat;
 import dev.lu15.voicechat.network.minecraft.Category;
 import dev.lu15.voicechat.network.minecraft.Packet;
 import java.util.regex.Pattern;
+
 import net.kyori.adventure.key.Key;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.NetworkBufferTemplate;

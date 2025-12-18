@@ -1,9 +1,12 @@
 package dev.lu15.voicechat;
 
 import dev.lu15.voicechat.network.minecraft.Category;
+import dev.lu15.voicechat.network.minecraft.Group;
 import dev.lu15.voicechat.network.minecraft.Packet;
 import dev.lu15.voicechat.network.voice.VoicePacket;
 import java.util.Collection;
+import java.util.UUID;
+
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import net.minestom.server.entity.Player;
@@ -11,6 +14,7 @@ import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.registry.RegistryKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 public sealed interface VoiceChat permits VoiceChatImpl {
@@ -41,6 +45,12 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         return Key.key(NAMESPACE, key);
     }
 
+    @NotNull @Unmodifiable Collection<Group> getManagedGroups();
+
+    @Nullable Group createManagedGroup(@NotNull String name, @NotNull Group.Type type, @Nullable String password, boolean persistent, boolean hidden);
+    boolean removeManagedGroup(@NotNull UUID groupId);
+    boolean setPlayerManagedGroup(@NotNull Player player, @Nullable UUID groupId, @Nullable String passwordForNewGroup);
+
     sealed interface Builder permits VoiceChatImpl.BuilderImpl {
 
         /**
@@ -59,11 +69,58 @@ public sealed interface VoiceChat permits VoiceChatImpl {
         @NotNull Builder publicAddress(@NotNull String publicAddress);
 
         /**
+         * Set the mtu of the voice server. This is used to determine the largest size of a packet.
+         * By default, this is set to 1024.
+         * @param mtu the public address of the voice server
+         * @return this builder
+         */
+        @NotNull Builder mtu(int mtu);
+
+        /**
+         * Set the codec of the voice server. This is used by clients to determine which audio codec to use.
+         * By default, this is set to VOIP.
+         * @param codec the voice codec to be used by clients
+         * @return this builder
+         */
+        @NotNull Builder codec(Codec codec);
+
+        /**
+         * Set the voice distance of the server. This is used to determine how far users can hear each other from..
+         * By default, this is set to 48.
+         * @param distance the distance players can hear each other from.
+         * @return this builder
+         */
+        @NotNull Builder distance(int distance);
+
+        /**
+         * Enables/Disables the use of groups on the server.
+         * By default, this is set to false.
+         * @param enabled used to determine if groups should be enabled.
+         * @return this builder
+         */
+        @NotNull Builder groups(boolean enabled);
+
+        /**
+         * Set the keepalive delay for the server.
+         * By default, this is set to 1000.
+         * @param keepalive used to determine what the keepalive delay should be set to.
+         * @return this builder
+         */
+        @NotNull Builder keepalive(int keepalive);
+
+        /**
+         * Enables/Disables the use of recording on the server.
+         * By default, this is set to false.
+         * @param enabled used to determine if recording should be enabled.
+         * @return this builder
+         */
+        @NotNull Builder recording(boolean enabled);
+
+        /**
          * Enable the voice chat server.
          * @return the voice chat server
          */
         @NotNull VoiceChat enable();
-
     }
 
 }
