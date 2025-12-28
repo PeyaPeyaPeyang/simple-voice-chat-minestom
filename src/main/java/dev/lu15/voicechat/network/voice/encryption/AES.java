@@ -8,19 +8,23 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.util.Random;
 import java.util.UUID;
 
 public final class AES {
 
     private static final @NotNull Random RANDOM = new SecureRandom();
-    private static final @NotNull String CIPHER = "AES/GCM/NoPadding";
+    private static final @NotNull String ALGO = "AES/GCM/NoPadding";
+
+    private static final ThreadLocal<Cipher> CIPHER = ThreadLocal.withInitial(() -> {
+        try {
+            return Cipher.getInstance(ALGO);
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException(e);
+        }
+    });
 
     private static final int KEY_LENGTH = 16;
     private static final int IV_LENGTH = 12;
@@ -56,7 +60,7 @@ public final class AES {
         byte[] iv = generateIv();
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
 
-        Cipher cipher = Cipher.getInstance(CIPHER);
+        Cipher cipher = CIPHER.get();
         cipher.init(Cipher.ENCRYPT_MODE, createKey(secret), spec);
 
         byte[] encrypted = cipher.doFinal(data);
@@ -81,7 +85,7 @@ public final class AES {
 
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
 
-        Cipher cipher = Cipher.getInstance(CIPHER);
+        Cipher cipher = Cipher.getInstance(ALGO);
         cipher.init(Cipher.DECRYPT_MODE, createKey(secret), spec);
 
         return cipher.doFinal(data);
