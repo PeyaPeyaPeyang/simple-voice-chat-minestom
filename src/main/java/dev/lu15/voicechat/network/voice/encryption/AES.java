@@ -20,7 +20,15 @@ public final class AES {
     private static final @NotNull Random RANDOM = new SecureRandom();
     private static final @NotNull String ALGO = "AES/GCM/NoPadding";
 
-    private static final ThreadLocal<Cipher> CIPHER = ThreadLocal.withInitial(() -> {
+     private static final ThreadLocal<Cipher> ENCRYPT_CIPHER = ThreadLocal.withInitial(() -> {
+        try {
+            return Cipher.getInstance(ALGO);
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException(e);
+        }
+    });
+
+    static final ThreadLocal<Cipher> DECRYPT_CIPHER = ThreadLocal.withInitial(() -> {
         try {
             return Cipher.getInstance(ALGO);
         } catch (GeneralSecurityException e) {
@@ -60,7 +68,7 @@ public final class AES {
         byte[] iv = generateIv();
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
 
-        Cipher cipher = CIPHER.get();
+        Cipher cipher = ENCRYPT_CIPHER.get();
         cipher.init(Cipher.ENCRYPT_MODE, createKey(secret), spec);
 
         byte[] encrypted = cipher.doFinal(data);
@@ -83,7 +91,7 @@ public final class AES {
 
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
 
-        Cipher cipher = CIPHER.get();
+        Cipher cipher = DECRYPT_CIPHER.get();
         cipher.init(Cipher.DECRYPT_MODE, createKey(secret), spec);
 
         return cipher.doFinal(data);
