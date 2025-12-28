@@ -6,10 +6,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
 
@@ -53,9 +55,7 @@ public final class AES {
 
     public static byte @NotNull [] encrypt(@NotNull UUID secret,
                                            byte @NotNull [] data)
-            throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException {
+            throws InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 
         byte[] iv = generateIv();
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
@@ -73,9 +73,7 @@ public final class AES {
 
     public static byte @NotNull [] decrypt(@NotNull UUID secret,
                                            byte @NotNull [] result)
-            throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException {
+            throws InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 
         byte[] iv = new byte[IV_LENGTH];
         System.arraycopy(result, 0, iv, 0, iv.length);
@@ -85,7 +83,7 @@ public final class AES {
 
         GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
 
-        Cipher cipher = Cipher.getInstance(ALGO);
+        Cipher cipher = CIPHER.get();
         cipher.init(Cipher.DECRYPT_MODE, createKey(secret), spec);
 
         return cipher.doFinal(data);
